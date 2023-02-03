@@ -106,7 +106,7 @@ function App() {
 
       d3.select("#tooltip")
         .attr("data-education", ed)
-        .html(""+county+", "+state+"<br/>Bachealors or higher: <span>"+ed+"%</span>")
+        .html(""+county+", "+state+"<br/>Bachelor's or higher: <span>"+ed+"%</span>")
         .style("visibility", "visible")
     }
     function mousemoveHandler(e) {
