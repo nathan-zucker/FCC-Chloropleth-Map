@@ -1,9 +1,7 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
+
 import './App.css'
 import * as d3 from 'd3'
 import { useEffect } from 'react'
-import { Data3DTexture } from 'three'
 
 function App() {
 
