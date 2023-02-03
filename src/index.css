@@ -1,0 +1,57 @@
+:root {
+  background-color: #1a1a1a;
+  color: whitesmoke;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+#description {
+  text-align: center;
+  margin-bottom: -1rem;
+}
+#map-container {
+  width: fit-content;
+  margin: 1rem auto;
+}
+#tooltip {
+  background-color: rgba(0, 162, 255, 0.452);
+  position: absolute;
+  padding: 0.5rem;
+  border: 1px solid whitesmoke;
+  border-radius: 0.5rem / 0.25rem;
+  visibility: hidden;
+  text-shadow: 1px 0 2px black;
+}
+#legend {
+  width: fit-content;
+  height: fit-content;
+  margin: 0 auto;
+}
+footer {
+  text-align: center;
+}
+footer p {
+  color: gray;
+}
+a {
+  color: rgb(190, 190, 190);
+}
+a:hover {
+  cursor: pointer;
+  color: whitesmoke;
+}
+a:active {
+  color: #2196f3;
+}
+#name {
+  text-decoration: none;
+  color: whitesmoke; 
+}
+#name:hover {
+  text-shadow: 0 0 20px #2196f3;
+  font-size: 105%;
+}
+#name:active {
+  color: #2196f3;
+}
