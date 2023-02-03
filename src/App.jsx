@@ -1,11 +1,18 @@
 
 import './App.css'
 import * as d3 from 'd3'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import 'primeicons/primeicons.css';
 
 function App() {
+  const [ scrollTop, setScrollTop ] = useState(0);
+
+
 
   useEffect(()=>{
+
+    
+
     const req1 = new XMLHttpRequest();
     req1.open("GET", "https://cdn.freecodecamp.org/testable-projects-fcc/data/choropleth_map/for_user_education.json", true)
     req1.send()
@@ -31,6 +38,8 @@ function App() {
     }
     
   },[])
+
+  
 
   function combineData(data){
 
@@ -184,6 +193,34 @@ function App() {
 
   }
 
+  function handleScrollDown(){
+    const h = [window.innerHeight, (window.innerHeight * 0.55)];
+    d3.select("#footer-arrow")
+      .transition()
+      .style("top", () => (h[1] - 20) + "px" )
+      .style("opacity", 0)
+
+    d3.select("#footer")
+      .transition()
+      .style("top", () => h[1]+"px")
+  }
+  function handleScrollUp(){
+    const h = [window.innerHeight, (window.innerHeight * 0.55)];
+    d3.select("#footer-arrow")
+      .transition()
+      .style("top", () => (h[0] - 55) + "px" )
+      .style("opacity", 0.8)
+
+    d3.select("#footer")
+      .transition()
+      .style("top",  () => (h[0]+10)+"px")
+  }
+
+  document.addEventListener("wheel", (event) => {
+
+    if (event.deltaY > 0) { handleScrollDown() } 
+    else if (event.deltaY < 0) { handleScrollUp() }
+  })
 
   return (
     <div className="App">
@@ -196,9 +233,12 @@ function App() {
       </div>
       <div id="map-container"></div>
       <div id="legend"></div>
-      <footer>
-        <p>created by</p>
-        <h3><a id="name" target="_blank" href="https://github.com/nathan-zucker">NATHAN ZUCKER</a></h3>
+      <div id="footer-arrow">
+        <i className="pi pi-angle-double-down" onClick={handleScrollDown} style={{"fontSize": "3rem"}}></i>
+      </div>
+      <footer id="footer">
+        <h3>created by</h3>
+        <h1><a id="name" target="_blank" href="https://github.com/nathan-zucker">NATHAN ZUCKER</a></h1>
         <p>as part of the <a href="https://www.freecodecamp.org" target="_blank">Free Code Camp</a><br/>Data Visualisation Projects</p>
       </footer>
     </div>
