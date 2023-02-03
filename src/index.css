@@ -44,7 +44,8 @@ footer {
   text-align: center;
   position: absolute;
   top: 101vh;
-  left: 18vw;
+  left: 50%;
+  transform: translate(-50%, 0);
   border: 1px solid orangered;
   box-shadow: 0 1px 3px orangered;
   width: 60vw;
