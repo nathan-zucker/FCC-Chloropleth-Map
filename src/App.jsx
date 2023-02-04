@@ -5,14 +5,18 @@ import { useEffect, useState } from 'react'
 import 'primeicons/primeicons.css';
 
 function App() {
-  const [ scrollTop, setScrollTop ] = useState(0);
 
+  // WINDOW SIZE CONSTANTS
+  const windowScale = d3.scaleLinear()
+      .domain([300, 800])
+      .range([0.1, 1])
+  const initialScale = windowScale(window.innerHeight)
+  const [ scale, setScale ] = useState(initialScale)
+  const [ w, setW ] = useState(950 * scale)
+  const [ h, setH ] = useState(500 * scale)
 
-
-  useEffect(()=>{
-
-    
-
+  useEffect(() => {
+    // GET DATA
     const req1 = new XMLHttpRequest();
     req1.open("GET", "https://cdn.freecodecamp.org/testable-projects-fcc/data/choropleth_map/for_user_education.json", true)
     req1.send()
@@ -21,6 +25,7 @@ function App() {
     req2.open("GET", "https://cdn.freecodecamp.org/testable-projects-fcc/data/choropleth_map/counties.json", true)
     req2.send()
 
+    // MAKE SURE I HAVE BOTH JSON FILES
     let data={
     };
     req1.onload = () => {
@@ -34,13 +39,14 @@ function App() {
       data = Object.assign({}, data, {
         data2: data2
       })
+      // SEND JSON FILES TO DATA MIXER
       if(data.data1.length > 0 && data.data2){return combineData(data)}
     }
     
   },[])
 
   
-
+  // MAP EDUCATION DATA TO GEO DATA
   function combineData(data){
 
     for(let i=0; i<data.data1.length; i++) {
@@ -50,28 +56,22 @@ function App() {
         let id = geometries[j].id;
 
         if(fips === id) {
-          //console.log(geometries[j], data.data1[i])
           geometries[j] = Object.assign({}, geometries[j], data.data1[i])
-          //console.log(geometries[j])
         }
       }
     }
-    //console.log("combined", data.data2)
-    //console.log("from", data.data2.objects.counties.geometries[0])
-
+    // SEND COMBIEND DATA TO RENDERER
     return renderMap(data)
   }
 
   function renderMap(data) {
     const { data1, data2 } = data;
     const lData = [];
-    
-    const scale = 0.83;
-    const  w = 950;
-    const h = 500;
+
     const geo = data2.objects.counties.geometries
     const ed = geo.map(e=>e.bachelorsOrHigher)
     
+    // GENERATE COLORS
     const rgb = [];
     let r = 230;
     let g = 230;
@@ -91,29 +91,30 @@ function App() {
     }
     console.log(lData)
 
+    // COLOR SCALE
     const colorScale = d3.scaleQuantize()
       .domain([d3.min(ed) - 0.5, d3.max(ed) + 0.5])
       .range(rgb)
 
+    // TOOLTIP CONTROLS
     function mouseoverHandler(e) {
       const atb =  e.srcElement.attributes;
-      //const county = atb["data-county"].nodeValue;
-      //console.log("atb",atb)
       const state = atb["data-state"].nodeValue;
       const county = atb["data-county"].nodeValue;
       const ed = parseFloat(atb["data-education"].nodeValue);
       
-
       d3.select("#tooltip")
         .attr("data-education", ed)
         .html(""+county+", "+state+"<br/>Bachelor's or higher: <span>"+ed+"%</span>")
         .style("visibility", "visible")
     }
+
     function mousemoveHandler(e) {
       d3.select("#tooltip")
         .style("top", ( e.clientY - 80 )+"px")
         .style("left", ( e.clientX - 90 )+"px")
     }
+
     function mouseoutHandler() {
       console.log("mouseout")
       d3.select("#tooltip")
@@ -121,25 +122,25 @@ function App() {
         .style("visibility", "hidden")
     }
     
-
+    // CREATE CANVAS
     d3.select("#map-container").selectAll("svg").remove()
     const map = d3.select("#map-container").append("svg")
       .attr("width", w)
       .attr("height", h)
 
+    // DO TOPOJSON THING
     let feature = topojson.feature(data2, data2.objects.counties)
     const path = d3.geoPath()
-    //console.log("feature",feature)
 
+    // DRAW THE MAP!
     const data3 = data2.objects.counties.geometries;
-    //console.log(data3)
     
     map.selectAll("path")
       .data(feature.features)
       .enter()
       .append("path")
       .attr("d", path)
-      .attr("transform", `scale(1, 0.83)`)
+      .attr("transform", `scale(${1*scale}, ${0.83*scale})`)
       .attr("class", "county")
       .attr("data-fips", (d,i)=> data3[i].fips)
       .attr("data-education", (d,i)=> data3[i].bachelorsOrHigher)
@@ -152,6 +153,7 @@ function App() {
       .on("mouseout", mouseoutHandler)
 
 
+    // LEGEND CONSTANTS
     const wLgd = 500;
     const hLgd = 100;
     const pLgd = {
@@ -167,11 +169,13 @@ function App() {
       .range([pLgd.left, wLgd + pLgd.left])
 
 
+    // LEGEND CANVAS
     d3.select("#legend").selectAll("svg").remove()
     const legend = d3.select("#legend").append("svg")
       .attr("width", wLgd + pLgd.right + pLgd.left)
       .attr("height", hLgd + pLgd.top + pLgd.bottom )
     
+    // LEGEND RECTANGLES
     legend
       .selectAll("rect")
       .data(lData)
@@ -184,6 +188,7 @@ function App() {
         .attr("x", ( d, i ) => pLgd.left + ( i * cwLgd ) )
         .attr("y", pLgd.top)
 
+    // LEGEND AXIS
     const lAxis = d3.axisBottom(lScale).tickFormat(d=>d+"%")
     legend.append("g")
       .attr("id", "legend-axis")
@@ -193,6 +198,7 @@ function App() {
 
   }
 
+  // FOOTER ANIMATION
   function handleScrollDown(){
     const h = [window.innerHeight, (window.innerHeight * 0.55)];
     d3.select("#footer-arrow")
@@ -222,6 +228,8 @@ function App() {
     else if (event.deltaY < 0) { handleScrollUp() }
   })
 
+
+  // MARKUP
   return (
     <div className="App">
       <div id="tooltip"></div>
